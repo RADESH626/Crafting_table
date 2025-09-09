@@ -2,14 +2,14 @@ package com.crafting_table.crafting_table.model;
 
 public class CraftingRequest {
 
-    private String[][] receta;
+    private String[][] Recipe;
 
-    public String[][] getreceta() {
-        return receta;
+    public String[][] getRecipe() {
+        return Recipe;
     }
 
-    public void setreceta(String[][] receta) {
-        this.receta = receta;
+    public void setRecipe(String[][] Recipe) {
+        this.Recipe = Recipe;
     }
 
     
