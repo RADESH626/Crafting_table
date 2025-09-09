@@ -6,15 +6,15 @@ este proyecto tienen como propocito principal el recibir recetas de crafteos de 
 
 ## Tecnologías Utilizadas
 
-*   Java
-*   Spring Boot
+- Java
+- Spring Boot
 
 ## Instalación y Configuración
 
 ### Prerrequisitos
 
-*   Java Development Kit (JDK) - Se recomienda JDK 17 o superior.
-*   Maven Wrapper (incluido en el proyecto).
+- Java Development Kit (JDK) - Se recomienda JDK 17 o superior.
+- Maven Wrapper (incluido en el proyecto).
 
 ### Pasos de Instalación
 
@@ -39,10 +39,44 @@ este proyecto tienen como propocito principal el recibir recetas de crafteos de 
 
 ## Uso
 
+### verificar que esta funcionando  
+
 Para verificar que la aplicación está funcionando, realiza una solicitud GET al endpoint `/ping`. Puedes hacerlo usando `curl` o directamente desde tu navegador:
 
 ```bash
-curl http://localhost:8080/ping
+http://localhost:8080/ping
 ```
 
 O visita: `http://localhost:8080/ping` en tu navegador. Deberías recibir la respuesta "pong".
+
+## enviar una receta 
+
+para enviar una receta de crafteo, se tienen que usar el end point /craft enviando una peticion tipo POST
+
+```bash
+
+    http://localhost:8080/craft
+
+```
+
+esta es la estructura de el json que sepera la aplicacion
+
+```bash
+
+    {
+  "recipe": [
+            ["", "", ""],
+            ["", "", ""],
+            ["", "",""]
+        ]
+    }
+
+```
+
+puedes llenar los espacios en blanco con los items que desees
+
+## RECUERDA
+
+el nombre de los items tienen que ser en ingles,
+
+este programa es key sensitive, `ironIngot ` es diferente a `IronIngot `, `Ironingot `, etc 
