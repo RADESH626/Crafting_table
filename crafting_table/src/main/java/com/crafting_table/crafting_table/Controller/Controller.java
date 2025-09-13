@@ -1,33 +1,27 @@
 package com.crafting_table.crafting_table.Controller;
 
 import com.crafting_table.crafting_table.model.CraftingRequest;
-import com.crafting_table.crafting_table.model.Ingredient;
-import com.crafting_table.crafting_table.model.Recipe;
-import com.crafting_table.crafting_table.service.CraftingService; // Assuming a service layer
-
+import com.crafting_table.crafting_table.model.Item;
+import com.crafting_table.crafting_table.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import com.mongodb.client.MongoClient;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
 
 @RestController
 public class Controller {
 
-    private final CraftingService craftingService; // Use a service for logic
+    private final ItemService itemservice; // Use a service for logic
     private final MongoClient mongoClient; // Add this line
 
     // Constructor for dependency injection
     @Autowired // Use Autowired for clarity
-    public Controller(CraftingService craftingService, MongoClient mongoClient) {
-        this.craftingService = craftingService;
+    public Controller(ItemService itemservice, MongoClient mongoClient) {
+        this.itemservice = itemservice;
         this.mongoClient = mongoClient; // Assign the injected client
     }
 
@@ -50,72 +44,63 @@ public class Controller {
     }
 
     @PostMapping("/craft")
-    public String checkCraft(@RequestBody CraftingRequest RecipeRecivied) { // Keeping parameter name 'receta' as in
-                                                                            // original file
+    public Item checkCraft(@RequestBody CraftingRequest craftingRequest) {
 
-        if (RecipeRecivied == null) {
-            return "El objeto de la petición está vacío";
+        if (craftingRequest.getRecipe() == null) {
+            System.out.println("error al obtener el crafteo en el controller");
+            return null;
         }
 
-        System.out.println(RecipeRecivied.getRecipe());
+        System.out.println("receta recibida:" + craftingRequest.getRecipe());
 
-        String[][] recipe = RecipeRecivied.getRecipe(); // Corrected method name
+        String craftingRecipe = craftingRequest.getRecipe();
 
-        System.out.println(recipe);
+        Item item = itemservice.findItemByRecipe(craftingRecipe);
 
-        if (recipe == null) {
-            return "Error al recibir la receta";
+        if (item == null){
+            System.out.println("error al obtener item de la base de datos en el controller");
+            return null;
         }
 
-        // --- Algorithm Implementation Steps ---
-        // 1. Convert String[][] to List<Ingredient> and determine bounding box
-        List<Ingredient> ingredients = new ArrayList<>();
+        System.out.println("item encontrado:" + item.toString());
 
-        int minRow = 10, maxRow = -1;
-        int minCol = 10, maxCol = -1;
+        if (item.getRecipe() == null){
 
-        boolean hasIngredients = false;
+            System.out.println("error al encontrar la receta en el controlador");
 
-        for (int r = 0; r < recipe.length; r++) {
-            for (int c = 0; c < recipe[r].length; c++) {
-
-                String item = recipe[r][c];
-
-                // System.out.println("item en la pocicion: "+ r + " "+ c + ":" + item);
-
-                if (item != null && !item.trim().isEmpty()) {
-
-                    ingredients.add(new Ingredient(item, r, c));
-                    minRow = Math.min(minRow, r);
-                    maxRow = Math.max(maxRow, r);
-                    minCol = Math.min(minCol, c);
-                    maxCol = Math.max(maxCol, c);
-                    hasIngredients = true;
-                }
-            }
+            return null;    
         }
+    
+        return item;
 
-        if (!hasIngredients) {
-            return "La receta no contiene ingredientes.";
-        }
-
-        // 2. Call the service to find the matching recipe
-
-        // The service will handle database lookups and pattern matching
-        
-        String resultItem = craftingService.findCraftedItem(ingredients, minRow, maxRow, minCol, maxCol);
-
-        System.out.println("item crafteado:"+resultItem);
-
-        if (resultItem != null) {
-            return "El item crafteado es: " + resultItem;
-        } else {
-            return "No se encontró una receta válida para los ingredientes proporcionados.";
-        }
     }
 
-    // Removed the /conexion endpoint as MongoClient is no longer directly used in
-    // Controller
-    // If connection checking is needed, it should be handled via the service or
-    // repository layer.
+    @PostMapping("/Item/new")
+    public Item InsertItem(@RequestBody Item newitem) {
+
+        if( newitem == null ){
+            System.out.println("error al recibir el nuevo item");
+            return null;
+        }
+
+        System.out.println("item recibido en el controller:" + newitem.toString());
+        
+
+
+        Item itemsaved = itemservice.saveItem(newitem);
+
+        if (itemsaved== null){
+
+            System.out.println("error al guardar el item en el controller");
+
+            return null;
+        } 
+
+        // System.out.println("item ingresado correctamente");
+
+        return itemsaved;
+
+    }
+
+
 }
